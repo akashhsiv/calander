@@ -1,20 +1,13 @@
+// ServerDay.tsx
+import * as React from "react";
 import { Dayjs } from "dayjs";
 import Badge from "@mui/material/Badge";
 import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
+import { ToDoItem } from "./ToDo";
+import { RemindersItem } from "./Reminder";
+import { NoteItem } from "./Notes"; // Import NoteItem
 
-// Define interfaces for ToDo, Task, and Reminder
-interface ToDo {
-  title: string;
-  date: Dayjs;
-  completed: boolean;
-}
-
-interface Reminder {
-  title: string;
-  date: Dayjs;
-  category: string; // e.g., "Birthday", "Meeting"
-}
-
+// Define the Task interface
 interface Task {
   title: string;
   description: string;
@@ -23,71 +16,66 @@ interface Task {
   isFinished: boolean;
 }
 
-// Define props for the ServerDay component
 interface ServerDayProps extends PickersDayProps<Dayjs> {
-  todos?: ToDo[];
-  tasks?: Task[];
-  reminders?: Reminder[];
+  todos: ToDoItem[];
+  reminders: RemindersItem[];
+  tasks: Task[];
+  notes: NoteItem[]; // Add notes prop
 }
 
-// Define the ServerDay component to display badges for ToDos, Tasks, and Reminders
-function ServerDay(props: ServerDayProps) {
-  const {
-    todos = [],
-    tasks = [],
-    reminders = [],
-    day,
-    outsideCurrentMonth,
-    ...other
-  } = props;
+const categoryEmojis: Record<string, string> = {
+  Birthday: "🎉",
+  Interview: "💼",
+  Meeting: "📅",
+  Bill: "💰",
+  Event: "🎟️",
+};
 
-  // Check if there are to-dos, tasks, or reminders for the current day
-  const hasToDos = todos.some((todo) => day.isSame(todo.date, "day"));
-  const taskSymbols = tasks
-    .filter((task) => task.startDate && day.isSame(task.startDate, "day"))
-    .map((task) => (task.isFinished ? "✅" : "🗂️"))
-    .join("");
-  const reminderSymbols = reminders
-    .filter((reminder) => day.isSame(reminder.date, "day"))
-    .map((reminder) => {
-      switch (reminder.category) {
-        case "Birthday":
-          return "🎉";
-        case "Interview":
-          return "💼";
-        case "Meeting":
-          return "📅";
-        case "Bill":
-          return "💰";
-        case "Event":
-          return "🎟️";
-        default:
-          return "";
-      }
-    })
-    .join("");
+const ServerDay: React.FC<ServerDayProps> = (props) => {
+  const { day, todos, reminders, tasks, notes, ...other } = props; // Destructure notes
+
+  // Check if there are To-Dos for this day
+  const hasToDo = todos.some((todo) => todo.date.isSame(day, "day"));
+
+  // Find the first reminder for this day to determine the emoji
+  const reminder = reminders.find((reminder) =>
+    reminder.date.isSame(day, "day")
+  );
+  const reminderEmoji = reminder
+    ? categoryEmojis[reminder.category]
+    : undefined;
+
+  // Check if there are tasks starting or ending on this day
+  const startTask = tasks.some((task) => task.startDate?.isSame(day, "day"));
+  const endTask = tasks.some((task) => task.finishDate?.isSame(day, "day"));
+
+  // Find the first note for this day to determine the emoji
+  const note = notes.find((note) => note.date.isSame(day, "day"));
+  const noteEmoji = note ? note.emoji : undefined;
+
+  // Determine the badge content
+  let badgeContent: string | undefined;
+  if (hasToDo) {
+    badgeContent = "✓";
+  } else if (reminderEmoji) {
+    badgeContent = reminderEmoji;
+  } else if (startTask) {
+    badgeContent = "🔜"; // Emoji for task starting
+  } else if (endTask) {
+    badgeContent = "🔚"; // Emoji for task ending
+  } else if (noteEmoji) {
+    badgeContent = noteEmoji;
+  }
 
   return (
     <Badge
-      key={props.day.toString()}
       overlap="circular"
-      badgeContent={
-        hasToDos || taskSymbols || reminderSymbols ? (
-          <>
-            {hasToDos ? "✅" : ""}
-            {taskSymbols}
-            {reminderSymbols}
-          </>
-        ) : undefined
-      }
+      badgeContent={badgeContent}
+      color={hasToDo ? "primary" : reminder ? "secondary" : "default"}
     >
-      <PickersDay
-        {...other}
-        outsideCurrentMonth={outsideCurrentMonth}
-        day={day}
-      />
+      <PickersDay {...other} day={day} />
     </Badge>
   );
-}
+};
 
 export default ServerDay;

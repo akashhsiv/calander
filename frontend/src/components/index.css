@@ -1,0 +1,64 @@
+/* Default styles (for large screens) */
+.container {
+  margin-top: 15px;
+}
+
+.calendarContainer {
+  position: sticky;
+  top: 0;
+  margin-top: 5px;
+  border: 1px solid #000; /* Adjust as needed */
+}
+
+.sidebar {
+  border: 1px solid #000; /* Adjust as needed */
+}
+
+/* Responsive styles for different screen sizes */
+
+/* Medium screens (tablets) */
+@media (max-width: 1024px) {
+  .container {
+    margin-top: 10px;
+  }
+
+  .calendarContainer {
+    margin-top: 0;
+  }
+
+  .sidebar {
+    border: none; /* Adjust as needed */
+  }
+
+  .gridItem {
+    padding: 10px;
+  }
+}
+
+/* Small screens (mobile devices) */
+@media (max-width: 600px) {
+  .container {
+    margin-top: 5px;
+  }
+
+  .calendarContainer {
+    margin-top: 0;
+    border: none; /* Adjust as needed */
+  }
+
+  .sidebar {
+    border: none; /* Adjust as needed */
+  }
+
+  .gridItem {
+    padding: 5px;
+  }
+
+  /* Stack grid items vertically on small screens */
+  .gridContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+

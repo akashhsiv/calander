@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs"; // Import dayjs for getting current date
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-interface Reminder {
+export interface RemindersItem {
   title: string;
   date: Dayjs;
   category: string;
@@ -25,8 +25,8 @@ interface Reminder {
 
 interface ReminderProps {
   selecteddate: Dayjs | null;
-  reminders: Reminder[];
-  setReminders: React.Dispatch<React.SetStateAction<Reminder[]>>;
+  reminders: RemindersItem[];
+  setReminders: React.Dispatch<React.SetStateAction<RemindersItem[]>>;
 }
 
 const categories = [
@@ -48,7 +48,10 @@ const Reminders: React.FC<ReminderProps> = ({
   const [editIndex, setEditIndex] = React.useState<number | null>(null);
 
   const handleAddReminder = () => {
-    if (newReminder && selecteddate && selectedCategory) {
+    // Use current date if no date is selected
+    const reminderDate = selecteddate || dayjs();
+
+    if (newReminder && selectedCategory) {
       if (editIndex !== null) {
         // Editing an existing reminder
         const updatedReminders = reminders.map((reminder, index) =>
@@ -64,7 +67,7 @@ const Reminders: React.FC<ReminderProps> = ({
           ...reminders,
           {
             title: newReminder,
-            date: selecteddate,
+            date: reminderDate,
             category: selectedCategory,
           },
         ]);
@@ -72,7 +75,7 @@ const Reminders: React.FC<ReminderProps> = ({
       setNewReminder("");
       setSelectedCategory("");
       setShowCategory(false); // Hide the category dropdown after adding
-    } else if (newReminder && selecteddate) {
+    } else if (newReminder) {
       // Show category dropdown if no category is selected
       setShowCategory(true);
     }
@@ -104,8 +107,8 @@ const Reminders: React.FC<ReminderProps> = ({
   return (
     <Card sx={{ width: "100%", bgcolor: "background.paper", p: 2 }}>
       <CardContent>
-        <Typography variant="h5" component="div">
-          Reminders
+        <Typography variant="h5" component="div" color="primary">
+          Reminders 🔔
         </Typography>
         {filteredReminders.length === 0 ? (
           <Typography variant="body1">
@@ -150,10 +153,10 @@ const Reminders: React.FC<ReminderProps> = ({
         <ListItem>
           <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
             <TextField
-              label="New Reminder"
+              label="Add Here"
               value={newReminder}
               onChange={(e) => setNewReminder(e.target.value)}
-              onKeyDown={handleKeyPress} // Add keydown event handler
+              onKeyDown={handleKeyPress}
               sx={{ flexGrow: 1 }}
             />
             {showCategory && (

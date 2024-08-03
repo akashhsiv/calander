@@ -1,213 +1,134 @@
 import * as React from "react";
+import { styled, useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
 import IconButton from "@mui/material/IconButton";
-import AccountCircle from "@mui/icons-material/AccountCircle";
+import Fab from "@mui/material/Fab";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { Menu, MenuItem } from "@mui/material";
+import { Link } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
-import { Link } from "@mui/material";
-import Snackbar from "@mui/material/Snackbar";
-import Slide from "@mui/material/Slide";
-import MuiAlert, { AlertProps } from "@mui/material/Alert";
-// import useMediaQuery from "@mui/material/useMediaQuery";
-// import { useTheme } from "@mui/material/styles";
+import AddIcon from "@mui/icons-material/Add";
+import { useSignIn } from "react-auth-kit"; // Correct import
 
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
-  props,
-  ref
-) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+const StyledFab = styled(Fab)({
+  position: "absolute",
+  zIndex: 1,
+  top: -30,
+  left: 0,
+  right: 0,
+  margin: "0 auto",
 });
 
-export default function RespNavBar() {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    React.useState<null | HTMLElement>(null);
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-  // const theme = useTheme();
-  // const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+const ProfileMenuIcon = styled(Avatar)({
+  width: 40,
+  height: 40,
+  backgroundColor: "#ffffff", // Customize as needed
+  border: "2px solid #ffffff", // Optional border
+});
 
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-
-  // const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-  //   setMobileMoreAnchorEl(event.currentTarget);
-  // };
-
-  const handleSnackbarOpen = () => {
-    setSnackbarOpen(true);
-  };
-
-  const handleSnackbarClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
-
-  const menuId = "primary-search-account-menu";
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem component={Link} href={"/login"}>
-        Login
-      </MenuItem>
-      <MenuItem component={Link} href={"/register"}>
-        Register
-      </MenuItem>
-    </Menu>
+export default function BottomAppBar() {
+  const [moreAnchorEl, setMoreAnchorEl] = React.useState<HTMLElement | null>(
+    null
   );
+  const [profileAnchorEl, setProfileAnchorEl] =
+    React.useState<HTMLElement | null>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const signIn = useSignIn(); // Use the signIn hook
 
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem component={Link} href="/reminders">
-        Reminders
-      </MenuItem>
-      <MenuItem component={Link} href="/tasks">
-        Tasks
-      </MenuItem>
-      <MenuItem component={Link} href="/todos">
-        To-Do
-      </MenuItem>
-      <MenuItem component={Link} href="/notes">
-        Notes
-      </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-    </Menu>
-  );
+  const handleMoreClick = (event: React.MouseEvent<HTMLElement>) => {
+    setMoreAnchorEl(event.currentTarget);
+  };
 
-  const renderDesktopMenu = (
-    <Box sx={{ display: { xs: "none", md: "flex" } }}>
-      <MenuItem component={Link} href="/reminders">
-        Reminders
-      </MenuItem>
-      <MenuItem component={Link} href="/tasks">
-        Tasks
-      </MenuItem>
-      <MenuItem component={Link} href="/todos">
-        To-Do
-      </MenuItem>
-      <MenuItem component={Link} href="/notes">
-        Notes
-      </MenuItem>
-      <IconButton
-        size="large"
-        edge="end"
-        aria-label="account of current user"
-        aria-controls={menuId}
-        aria-haspopup="true"
-        onClick={handleProfileMenuOpen}
-        color="inherit"
-      >
-        <Avatar alt="Profile Picture" src="/static/images/avatar/1.jpg" />
-      </IconButton>
-    </Box>
-  );
+  const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
+    setProfileAnchorEl(event.currentTarget);
+  };
+
+  const handleMoreClose = () => {
+    setMoreAnchorEl(null);
+  };
+
+  const handleProfileClose = () => {
+    setProfileAnchorEl(null);
+  };
+
+  const handleLogin = () => {
+    // Implement your login functionality here
+    signIn({
+      auth: {
+        token: "dummy-token",
+        type: "Bearer",
+      },
+      userState: {
+        email: "user@example.com",
+        uid: 123456,
+      },
+    });
+    handleProfileClose();
+  };
+
+  const handleRegister = () => {
+    // Implement your register functionality here
+    handleProfileClose();
+  };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+    <React.Fragment>
+      <CssBaseline />
+      <AppBar position="fixed" color="primary" sx={{ top: "auto", bottom: 0 }}>
         <Toolbar>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
-          >
-            OrganiZEMe
-          </Typography>
+          <IconButton color="inherit" onClick={handleMoreClick}>
+            <MoreIcon />
+          </IconButton>
           <Box sx={{ flexGrow: 1 }} />
-          {/* {isMobile ? (
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleSnackbarOpen}
-              color="inherit"
+          {isMobile && (
+            <StyledFab color="secondary" aria-label="add">
+              <AddIcon />
+            </StyledFab>
+          )}
+          <IconButton
+            color="inherit"
+            aria-label="profile"
+            onClick={handleProfileClick}
+          >
+            <ProfileMenuIcon src="/path/to/profile-pic.jpg" alt="Profile" />
+          </IconButton>
+          <Menu
+            anchorEl={moreAnchorEl}
+            open={Boolean(moreAnchorEl)}
+            onClose={handleMoreClose}
+          >
+            <MenuItem onClick={handleMoreClose} component={Link} to="/notes">
+              My Notes
+            </MenuItem>
+            <MenuItem
+              onClick={handleMoreClose}
+              component={Link}
+              to="/reminders"
             >
-              <MoreIcon />
-            </IconButton>
-          ) : (
-            renderDesktopMenu
-          )} */}
+              My Reminders
+            </MenuItem>
+            <MenuItem onClick={handleMoreClose} component={Link} to="/tasks">
+              My Tasks
+            </MenuItem>
+            <MenuItem onClick={handleMoreClose} component={Link} to="/todos">
+              My To-Dos
+            </MenuItem>
+          </Menu>
+          <Menu
+            anchorEl={profileAnchorEl}
+            open={Boolean(profileAnchorEl)}
+            onClose={handleProfileClose}
+          >
+            <MenuItem onClick={handleLogin}>Login</MenuItem>
+            <MenuItem onClick={handleRegister}>Register</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
-      <Snackbar
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        open={snackbarOpen}
-        onClose={handleSnackbarClose}
-        TransitionComponent={(props) => <Slide {...props} direction="up" />}
-        message="Open menu for navigation"
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity="info"
-          sx={{ width: "100%" }}
-        >
-          <MenuItem component={Link} href="/reminders">
-            Reminders
-          </MenuItem>
-          <MenuItem component={Link} href="/tasks">
-            Tasks
-          </MenuItem>
-          <MenuItem component={Link} href="/todos">
-            To-Do
-          </MenuItem>
-          <MenuItem component={Link} href="/notes">
-            Notes
-          </MenuItem>
-        </Alert>
-      </Snackbar>
-    </Box>
+    </React.Fragment>
   );
 }
