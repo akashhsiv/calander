@@ -1,20 +1,19 @@
 import * as React from "react";
 import { Grid } from "@mui/material";
-import CalendarWithEvents from "./components/Calander";
 import { Dayjs } from "dayjs";
 import ToDos, { ToDoItem } from "./components/ToDo";
 import Reminders, { RemindersItem } from "./components/Reminder";
 import Tasks, { TaskItem } from "./components/Tasks";
-import Notes, { NoteItem } from "./components/Notes"; // Import Notes
-import BottomAppBar from "./components/RespNavBar";
-import "./components/index.css"
+import Notes, { NoteItem } from "./components/Notes"; // Ensure correct import path
+import "./components/index.css"; // Ensure correct import path
+import CalendarWithEvents from './components/Calander';
 
 const Home: React.FC = () => {
   const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(null);
   const [todos, setTodos] = React.useState<ToDoItem[]>([]);
   const [reminders, setReminders] = React.useState<RemindersItem[]>([]);
   const [tasks, setTasks] = React.useState<TaskItem[]>([]);
-  const [notes, setNotes] = React.useState<NoteItem[]>([]); // Add notes state
+  const [notes, setNotes] = React.useState<NoteItem[]>([]);
 
   const addTask = (task: TaskItem) => {
     setTasks([...tasks, task]);
@@ -33,23 +32,18 @@ const Home: React.FC = () => {
   };
 
   return (
-    <Grid container sx={{ marginTop: "15px" }}>
-      <Grid
-        item
-        xs={7}
-        border={1}
-        sx={{ position: "sticky", top: 0, marginTop: "5px" }}
-      >
+    <Grid container spacing={2} sx={{ marginTop: "15px" }}>
+      <Grid item xs={12} md={7} border={1}>
         <CalendarWithEvents
           selecteddate={selectedDate}
           setselecteddate={setSelectedDate}
           todos={todos}
           reminders={reminders}
           tasks={tasks}
-          notes={notes} // Pass notes
+          notes={notes}
         />
       </Grid>
-      <Grid item xs={4} border={1}>
+      <Grid item xs={12} md={5} border={1}>
         <ToDos selecteddate={selectedDate} todos={todos} setTodos={setTodos} />
         <Reminders
           selecteddate={selectedDate}
@@ -58,7 +52,7 @@ const Home: React.FC = () => {
         />
       </Grid>
       <Grid container spacing={2}>
-        <Grid item xs={6}>
+        <Grid item xs={12} sm={6}>
           <Tasks
             selectedDate={selectedDate}
             tasks={tasks}
@@ -66,7 +60,7 @@ const Home: React.FC = () => {
             deleteTask={deleteTask}
           />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} sm={6}>
           <Notes
             selectedDate={selectedDate}
             notes={notes}
@@ -75,7 +69,6 @@ const Home: React.FC = () => {
           />
         </Grid>
       </Grid>
-      <BottomAppBar />
     </Grid>
   );
 };

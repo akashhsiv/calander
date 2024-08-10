@@ -1,15 +1,26 @@
 from rest_framework import serializers
-from .models import Task, Note
+from .models import Task, Note, Reminder, ToDo
 
 
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ('id', 'user', 'title', 'description',
-                  'completed', 'proof_of_completion','start_date','end_date')
+        fields = '__all__'
 
 
-class NotesSerializer(serializers.ModelSerializer):
+class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
-        fields = ('id', 'user', 'title', 'content','created_at')
+        fields = '__all__'
+
+
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
+        fields = '__all__'
+
+
+class ToDoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ToDo
+        fields = '__all__'

@@ -38,7 +38,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    # Ensure this middleware is defined
     'backend.middleware.CustomExceptionMiddleware',
 ]
 

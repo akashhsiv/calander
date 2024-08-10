@@ -12,7 +12,7 @@ import { Menu, MenuItem } from "@mui/material";
 import { Link } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import AddIcon from "@mui/icons-material/Add";
-import { useSignIn } from "react-auth-kit"; // Correct import
+import  useSignIn  from 'react-auth-kit/hooks/useSignIn';
 
 const StyledFab = styled(Fab)({
   position: "absolute",
@@ -26,11 +26,11 @@ const StyledFab = styled(Fab)({
 const ProfileMenuIcon = styled(Avatar)({
   width: 40,
   height: 40,
-  backgroundColor: "#ffffff", // Customize as needed
-  border: "2px solid #ffffff", // Optional border
+  backgroundColor: "#ffffff",
+  border: "2px solid #ffffff",
 });
 
-export default function BottomAppBar() {
+const BottomAppBar: React.FC = () => {
   const [moreAnchorEl, setMoreAnchorEl] = React.useState<HTMLElement | null>(
     null
   );
@@ -57,16 +57,11 @@ export default function BottomAppBar() {
   };
 
   const handleLogin = () => {
-    // Implement your login functionality here
     signIn({
-      auth: {
-        token: "dummy-token",
-        type: "Bearer",
-      },
-      userState: {
-        email: "user@example.com",
-        uid: 123456,
-      },
+      token: "dummy-token",
+      expiresIn: 3600, // Duration in seconds
+      tokenType: "Bearer",
+      authState: { email: "user@example.com" },
     });
     handleProfileClose();
   };
@@ -131,4 +126,6 @@ export default function BottomAppBar() {
       </AppBar>
     </React.Fragment>
   );
-}
+};
+
+export default BottomAppBar;
