@@ -1,5 +1,5 @@
 import * as React from "react";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import {
   Card,
   CardContent,
@@ -19,50 +19,80 @@ import {
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { useDispatch, useSelector } from "react-redux";
+import {   AppDispatch, RootState } from "./app/store";
+import { addTodo, updateTodo } from "./features/todos/todosActions";
+import { ToDoItem } from "./features/todos/todosTypes";
 
-export interface ToDoItem {
-  id: number;
-  title: string;
-  date: Dayjs;
-  completed: boolean;
-}
 
-interface ToDoProps {
-  selecteddate: Dayjs | null;
-  todos: ToDoItem[];
-  setTodos: React.Dispatch<React.SetStateAction<ToDoItem[]>>;
-}
+const ToDos: React.FC = () => {
+   const selectedDate = useSelector(
+     (state: RootState) => state.core.selectedDate
+   );
+   const auth = useSelector((state: RootState) => state.core.auth);
 
-const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+   const todos = useSelector((state: RootState) => state.todos.todos);
+
   const currentDate = dayjs();
-  const effectiveDate = selecteddate || currentDate;
+  const effectiveDate = selectedDate || currentDate;
 
   const [newTodo, setNewTodo] = React.useState<string>("");
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
-
-  const handleAddTodo = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [, setLoading] = React.useState<boolean>(false);
+  const [, setError] = React.useState<string | null>(null);
+console.log(auth)
+  
+  const handleAddTodo = async () => {
+    
     if (newTodo) {
-      const newTodoItem: ToDoItem = {
-        id: todos.length ? Math.max(...todos.map((todo) => todo.id)) + 1 : 1,
-        title: newTodo,
-        date: effectiveDate,
+      const newTodoItem = {
+        content: newTodo,
+        date: effectiveDate.format("YYYY-MM-DD"), // Format to YYYY-MM-DD
         completed: false,
+        user: auth.userId,
       };
-      setTodos([...todos, newTodoItem]);
-      setNewTodo("");
+
+      setLoading(true);
+      try {
+        await dispatch(addTodo(newTodoItem)).unwrap(); // Unwrap to handle errors
+        setNewTodo("");
+        setDialogOpen(false);
+      } catch (error) {
+        setError("Failed to add to-do item.");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const handleCheckboxChange = (id: number) => {
-    // Remove the to-do item when the checkbox is checked
-    const updatedTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(updatedTodos);
-  };
+
+ const handleCheckboxChange = async (id: number, completed: boolean) => {
+   setLoading(true);
+   try {
+     const todoToUpdate = todos.find((todo: ToDoItem) => todo.id === id);
+     if (todoToUpdate) {
+       await dispatch(
+         updateTodo({
+           ...todoToUpdate,
+           completed: !completed,
+         })
+       ).unwrap(); 
+     }
+   } catch (error) {
+     setError("Failed to update to-do item.");
+     console.error(error);
+   } finally {
+     setLoading(false);
+   }
+ };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleAddTodo();
-      setDialogOpen(false);
     }
   };
 
@@ -80,22 +110,33 @@ const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
   };
 
   const filteredTodos = todos.filter(
-    (todo) => effectiveDate && todo.date.isSame(effectiveDate, "day")
+    (todo: ToDoItem) => effectiveDate && dayjs(todo.date).isSame(effectiveDate, "day")
   );
 
   return (
-    <Card sx={{ width: "100%", bgcolor: "background.paper", p: 2 }}>
+    <Card sx={{ width: "100%", bgcolor: "background.paper", p: 1, height:"28%"}}>
       <CardContent>
-        <Typography variant="h5" component="div" color="primary">
-          To-Dos ✓
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="h5" component="div" color="primary">
+            To-Dos ✓
+          </Typography>
+          <IconButton color="primary" onClick={handleDialogOpen}>
+            <AddIcon />
+          </IconButton>
+        </Box>
+
         {filteredTodos.length === 0 ? (
           <Typography variant="body1">
             Your Schedule is Free Today, Do you want Anything To-Do?
           </Typography>
         ) : (
           <List>
-            {filteredTodos.map((todo) => (
+            {filteredTodos.map((todo: ToDoItem) => (
               <ListItem
                 key={todo.id}
                 sx={{
@@ -106,61 +147,48 @@ const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
                 }}
               >
                 <ListItemIcon>
-                  <Checkbox onChange={() => handleCheckboxChange(todo.id)} />
+                  <Checkbox
+                    checked={todo.completed}
+                    onChange={() => handleCheckboxChange(todo.id, todo.completed)}
+                  />
                 </ListItemIcon>
                 <ListItemText
-                  primary={todo.title}
-                  secondary={`Created on: ${todo.date.format("YYYY-MM-DD")}`}
+                  primary={todo.content}
+                  secondary={`Created on: ${todo.date}`}
+                  style={{
+                    textDecoration: todo.completed ? "line-through" : "none",
+                  }}
                 />
               </ListItem>
             ))}
           </List>
         )}
-        <ListItem>
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+
+        <Dialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Add a New To-Do</DialogTitle>
+          <DialogContent>
             <TextField
+              autoFocus
+              margin="dense"
               label="Add Here"
+              fullWidth
+              variant="standard"
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
-              onClick={handleDialogOpen}
-              sx={{ flexGrow: 1 }}
+              onKeyDown={handleKeyDown}
             />
-            <IconButton
-              color="primary"
-              onClick={handleDialogOpen}
-              sx={{ ml: 2 }}
-            >
-              <AddIcon />
-            </IconButton>
-          </Box>
-        </ListItem>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>Cancel</Button>
+            <Button onClick={handleDialogSubmit}>Add</Button>
+          </DialogActions>
+        </Dialog>
       </CardContent>
-
-      {/* Dialog for adding a new to-do */}
-      <Dialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Add a New To-Do</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Add Here"
-            fullWidth
-            variant="standard"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={handleDialogSubmit}>Add</Button>
-        </DialogActions>
-      </Dialog>
     </Card>
   );
 };

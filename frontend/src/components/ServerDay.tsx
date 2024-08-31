@@ -1,26 +1,16 @@
-// ServerDay.tsx
 import * as React from "react";
-import { Dayjs } from "dayjs";
 import Badge from "@mui/material/Badge";
 import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
-import { ToDoItem } from "./ToDo";
-import { RemindersItem } from "./Reminder";
-import { NoteItem } from "./Notes"; // Import NoteItem
-
-// Define the Task interface
-interface Task {
-  title: string;
-  description: string;
-  startDate: Dayjs | null;
-  finishDate: Dayjs | null;
-  isFinished: boolean;
-}
+import { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import { useSelector } from "react-redux";
+import { RootState } from "./app/store";
+import { RemindersItem } from "./features/reminders/remindersTypes";
+import { ToDoItem } from "./features/todos/todosTypes";
+import { NoteItem } from "./features/notes/notesTypes";
+import { TaskItem } from "./features/tasks/tasksTypes";
 
 interface ServerDayProps extends PickersDayProps<Dayjs> {
-  todos: ToDoItem[];
-  reminders: RemindersItem[];
-  tasks: Task[];
-  notes: NoteItem[]; // Add notes prop
 }
 
 const categoryEmojis: Record<string, string> = {
@@ -32,47 +22,57 @@ const categoryEmojis: Record<string, string> = {
 };
 
 const ServerDay: React.FC<ServerDayProps> = (props) => {
-  const { day, todos, reminders, tasks, notes, ...other } = props; // Destructure notes
+  const reminders = useSelector(
+    (state: RootState) => state.reminders.reminders
+  );
+  const todos = useSelector((state: RootState) => state.todos.todos);
+  const notes = useSelector((state: RootState) => state.notes.notes);
+  const tasks = useSelector((state: RootState) => state.tasks.tasks);
 
-  // Check if there are To-Dos for this day
-  const hasToDo = todos.some((todo) => todo.date.isSame(day, "day"));
+  const { day, ...other } = props;
+  const dayJs = dayjs(day);
 
-  // Find the first reminder for this day to determine the emoji
-  const reminder = reminders.find((reminder) =>
-    reminder.date.isSame(day, "day")
+  const hasToDo = todos.some(
+    (todo: ToDoItem) =>
+      dayjs(todo.date).isSame(dayJs, "day") && todo.completed == false
+  );
+  const reminder = reminders.find((reminder: RemindersItem) =>
+    dayjs(reminder.date).isSame(dayJs, "day")
+  );
+  const note = notes.find((note: NoteItem) =>
+    dayjs(note.date).isSame(dayJs, "day")
+  );
+  const startTask = tasks.find(
+    (task: TaskItem) =>
+      task.start_date && dayjs(task.start_date).isSame(dayJs, "day") && task.is_finished==false
+  );
+  const endTask = tasks.find(
+    (task: TaskItem) =>
+      task.end_date &&
+      dayjs(task.end_date).isSame(dayJs, "day") &&
+      task.is_finished == false
   );
   const reminderEmoji = reminder
     ? categoryEmojis[reminder.category]
     : undefined;
 
-  // Check if there are tasks starting or ending on this day
-  const startTask = tasks.some((task) => task.startDate?.isSame(day, "day"));
-  const endTask = tasks.some((task) => task.finishDate?.isSame(day, "day"));
-
-  // Find the first note for this day to determine the emoji
-  const note = notes.find((note) => note.date.isSame(day, "day"));
-  const noteEmoji = note ? note.emoji : undefined;
-
-  // Determine the badge content
   let badgeContent: string | undefined;
   if (hasToDo) {
     badgeContent = "✓";
   } else if (reminderEmoji) {
     badgeContent = reminderEmoji;
   } else if (startTask) {
-    badgeContent = "🔜"; // Emoji for task starting
+    badgeContent = "🔜";
   } else if (endTask) {
-    badgeContent = "🔚"; // Emoji for task ending
-  } else if (noteEmoji) {
-    badgeContent = noteEmoji;
+    badgeContent = "🔚"; 
+  } else if (note) {
+    badgeContent = "📝";
   }
 
+  const badgeColor = hasToDo ? "primary" : reminder ? "secondary" : "default";
+
   return (
-    <Badge
-      overlap="circular"
-      badgeContent={badgeContent}
-      color={hasToDo ? "primary" : reminder ? "secondary" : "default"}
-    >
+    <Badge overlap="circular" badgeContent={badgeContent} color={badgeColor}>
       <PickersDay {...other} day={day} />
     </Badge>
   );

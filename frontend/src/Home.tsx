@@ -1,68 +1,53 @@
 import * as React from "react";
-import { Grid } from "@mui/material";
-import { Dayjs } from "dayjs";
-import ToDos, { ToDoItem } from "./components/ToDo";
-import Reminders, { RemindersItem } from "./components/Reminder";
-import Tasks, { TaskItem } from "./components/Tasks";
-import Notes, { NoteItem } from "./components/Notes"; // Ensure correct import path
-import "./components/index.css"; // Ensure correct import path
-import CalendarWithEvents from './components/Calander';
+import { Grid, Box } from "@mui/material";
+import ToDos from "./components/ToDo";
+import "./components/index.css";
+import CalendarWithEvents from "./components/Calander";
+import BottomAppBar from "./components/RespNavBar";
+import { useDispatch } from "react-redux";
+import { fetchTodos } from "./components/features/todos/todosActions";
+import { fetchReminders } from "./components/features/reminders/remindersActions";
+import Reminders from "./components/Reminder";
+import { fetchNotes } from "./components/features/notes/notesActions";
+import Notes from "./components/Notes";
+import { fetchTasks } from "./components/features/tasks/tasksActions";
+import Tasks from "./components/Tasks";
+import { AppDispatch } from "./components/app/store";
 
 const Home: React.FC = () => {
-  const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(null);
-  const [todos, setTodos] = React.useState<ToDoItem[]>([]);
-  const [reminders, setReminders] = React.useState<RemindersItem[]>([]);
-  const [tasks, setTasks] = React.useState<TaskItem[]>([]);
-  const [notes, setNotes] = React.useState<NoteItem[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const addTask = (task: TaskItem) => {
-    setTasks([...tasks, task]);
-  };
-
-  const deleteTask = (index: number) => {
-    setTasks(tasks.filter((_, i) => i !== index));
-  };
-
-  const addNote = (note: NoteItem) => {
-    setNotes([...notes, note]);
-  };
-
-  const deleteNote = (index: number) => {
-    setNotes(notes.filter((_, i) => i !== index));
-  };
+  React.useEffect(() => {
+    dispatch(fetchTodos());
+    dispatch(fetchReminders());
+    dispatch(fetchNotes());
+    dispatch(fetchTasks());
+  }, [dispatch]);
 
   return (
-    <Grid container spacing={2} sx={{ marginTop: "15px" }}>
-      <Grid item xs={12} md={7}>
-        <CalendarWithEvents
-          selecteddate={selectedDate}
-          setselecteddate={setSelectedDate}
-          todos={todos}
-          reminders={reminders}
-          tasks={tasks}
-          notes={notes}
-        />
-        <Tasks
-          selectedDate={selectedDate}
-          tasks={tasks}
-          addTask={addTask}
-          deleteTask={deleteTask}
-        />
+    <Grid container spacing={1} sx={{ marginTop: "15px" }}>
+      <Grid item xs={12} md={8}>
+        <Box
+          sx={{
+            position: "fixed",
+            top: "15px",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            paddingRight: "40%",
+            marginLeft: "45px",
+          }}
+        >
+          <CalendarWithEvents />
+        </Box>
       </Grid>
-      <Grid item xs={12} md={5}>
-        <Notes
-          selectedDate={selectedDate}
-          notes={notes}
-          addNote={addNote}
-          deleteNote={deleteNote}
-        />
-        <ToDos selecteddate={selectedDate} todos={todos} setTodos={setTodos} />
-        <Reminders
-          selecteddate={selectedDate}
-          reminders={reminders}
-          setReminders={setReminders}
-        />
+      <Grid item xs={12} md={4}>
+        <ToDos />
+        <Reminders />
+        <Tasks />
+        <Notes />
       </Grid>
+      <BottomAppBar />
     </Grid>
   );
 };

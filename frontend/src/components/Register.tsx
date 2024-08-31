@@ -53,14 +53,11 @@ export const Register: React.FC = () => {
     setError("");
 
     try {
-      const response = await axios.post(
-        "https://motto-ai-be.vercel.app/api/register/",
-        {
-          username,
-          email,
-          password,
-        }
-      );
+      const response = await axios.post("http://127.0.0.1:8000/api/users/", {
+        username,
+        email,
+        password,
+      });
 
       // Handle successful registration
       console.log("Registration successful:", response.data);
@@ -158,7 +155,8 @@ export const Register: React.FC = () => {
         <Box mt={2}>
           <Typography variant="body2">
             Already have an account?{" "}
-            <Link href="/login" underline="hover">
+            <Link href="/login"
+ underline="hover">
               Login
             </Link>
           </Typography>

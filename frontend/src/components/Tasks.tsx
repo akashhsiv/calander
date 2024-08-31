@@ -1,5 +1,5 @@
 import * as React from "react";
-import dayjs, { Dayjs } from "dayjs"; // Import dayjs for handling dates
+import dayjs, { Dayjs } from "dayjs";
 import {
   Card,
   CardContent,
@@ -27,94 +27,109 @@ import AddIcon from "@mui/icons-material/Add";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "./app/store";
+import { TaskItem } from "./features/tasks/tasksTypes";
+import { addTasks, updateTasks } from "./features/tasks/tasksActions";
 
-// Define the TaskItem interface
-export interface TaskItem {
-  title: string;
-  description: string;
-  category: string;
-  startDate: Dayjs | null;
-  finishDate: Dayjs | null;
-  isFinished: boolean;
-}
-
-// Define the TaskForm component props
-interface TaskFormProps {
-  selectedDate: Dayjs | null;
-  tasks: TaskItem[];
-  addTask: (task: TaskItem) => void;
-  deleteTask: (index: number) => void;
-}
-
-const Tasks: React.FC<TaskFormProps> = ({
-  selectedDate,
-  tasks,
-  addTask,
-  deleteTask,
-}) => {
+const Tasks: React.FC = () => {
+  const selectedDate = useSelector(
+    (state: RootState) => state.core.selectedDate
+  );
+  const dispatch = useDispatch<AppDispatch>();
+  const tasks1 = useSelector((state: RootState) => state.tasks.tasks);
+  const auth = useSelector((state: RootState) => state.core.auth);
   const [title, setTitle] = React.useState<string>("");
   const [description, setDescription] = React.useState<string>("");
-  const [category, setCategory] = React.useState<string>(""); // New state for category
+  const [category, setCategory] = React.useState<string>("");
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
   const [finishDate, setFinishDate] = React.useState<Dayjs | null>(null);
   const [isFinished, setIsFinished] = React.useState<boolean>(false);
   const [isFormVisible, setIsFormVisible] = React.useState<boolean>(false);
 
-  const handleSubmit = () => {
-    // Default to current date and one week later if no dates are selected
+  const handleSubmit = async () => {
     const now = dayjs();
     const defaultStartDate = startDate || now;
     const defaultFinishDate = finishDate || now.add(7, "day");
 
     if (title && category) {
-      addTask({
-        title,
-        description,
-        category,
-        startDate: defaultStartDate,
-        finishDate: defaultFinishDate,
-        isFinished,
-      });
-      setTitle("");
-      setDescription("");
-      setCategory("");
-      setStartDate(null);
-      setFinishDate(null);
-      setIsFinished(false);
-      setIsFormVisible(false); // Hide form after submission
+      try {
+        const newTask = {
+          title,
+          description,
+          category,
+          start_date: defaultStartDate.format("YYYY-MM-DD"),
+          end_date: defaultFinishDate.format("YYYY-MM-DD"),
+          is_finished: isFinished,
+          user: auth.userId,
+        };
+
+        await dispatch(addTasks(newTask)).unwrap();
+
+        setTitle("");
+        setDescription("");
+        setCategory("");
+        setStartDate(null);
+        setFinishDate(null);
+        setIsFinished(false);
+        setIsFormVisible(false);
+      } catch (error) {
+        console.error("Failed to add task:", error);
+      }
     }
   };
 
-  const handleCheckboxChange = (index: number) => {
-    deleteTask(index);
-  };
+  const handleCheckboxChange = async (taskId: number) => {
+    try {
+      const taskToUpdate = tasks1.find((task: TaskItem) => task.id === taskId);
 
-  const filteredTasks = tasks.filter(
-    (task) =>
-      task.startDate &&
-      selectedDate &&
-      task.startDate.isSame(selectedDate, "day")
+      if (taskToUpdate) {
+        await dispatch(
+          updateTasks({
+            ...taskToUpdate,
+            is_finished: !taskToUpdate.is_finished,
+          })
+        ).unwrap();
+      }
+    } catch (error) {
+      console.error("Failed to update task status:", error);
+    }
+  };
+  const filteredTasks = tasks1.filter(
+    (task: TaskItem) =>
+      selectedDate && dayjs(task.start_date).isSame(selectedDate, "day")
   );
 
+  const handleFormOpen = () => {
+    setStartDate(selectedDate); 
+    setIsFormVisible(true); 
+  };
   return (
-    <Card sx={{
-        marginLeft: 5,
-        width: "800px",
-        bgcolor: "background.paper",
-        boxShadow: "2"}}>
+    <Card sx={{ width: "100%", bgcolor: "background.paper", p: 2 }}>
       <CardContent>
-        <Typography variant="h5" component="div" color="primary">
-          Tasks
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="h5" component="div" color="primary">
+            Tasks
+          </Typography>
+          <IconButton color="primary" onClick={handleFormOpen}>
+            <AddIcon />
+          </IconButton>
+        </Box>
+
         {filteredTasks.length === 0 ? (
           <Typography variant="body1">
-            No Task is Scheduled, Is There Anything You'd Like to Add
+            No Task is Scheduled, Is There Anything You'd Like to Add?
           </Typography>
         ) : (
           <List>
-            {filteredTasks.map((task, index) => (
+            {filteredTasks.map((task: TaskItem) => (
               <ListItem
-                key={index}
+                key={task.id}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -124,8 +139,8 @@ const Tasks: React.FC<TaskFormProps> = ({
               >
                 <ListItemIcon>
                   <Checkbox
-                    checked={task.isFinished}
-                    onChange={() => handleCheckboxChange(index)}
+                    checked={task.is_finished}
+                    onChange={() => handleCheckboxChange(task.id)}
                   />
                 </ListItemIcon>
                 <ListItemText
@@ -133,8 +148,8 @@ const Tasks: React.FC<TaskFormProps> = ({
                   secondary={
                     <>
                       <Typography variant="body2">
-                        {task.startDate?.format("DD-MM-YYYY")} -{" "}
-                        {task.finishDate?.format("DD-MM-YYYY")}
+                        {dayjs(task.start_date).format("YYYY-MM-DD")} -{" "}
+                        {dayjs(task.end_date).format("YYYY-MM-DD")}
                       </Typography>
                       <Typography variant="body2">
                         {task.description}
@@ -143,7 +158,7 @@ const Tasks: React.FC<TaskFormProps> = ({
                         Category: {task.category}
                       </Typography>
                       <Typography variant="body2">
-                        Status: {task.isFinished ? "Completed" : "Incomplete"}
+                        Status: {task.is_finished ? "Completed" : "Incomplete"}
                       </Typography>
                     </>
                   }
@@ -152,22 +167,6 @@ const Tasks: React.FC<TaskFormProps> = ({
             ))}
           </List>
         )}
-        <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-          <TextField
-            label="Add Here"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            sx={{ flexGrow: 1 }}
-          />
-          <IconButton
-            color="primary"
-            onClick={() => setIsFormVisible(true)}
-            sx={{ ml: 2 }}
-          >
-            <AddIcon />
-          </IconButton>
-        </Box>
       </CardContent>
 
       <Dialog open={isFormVisible} onClose={() => setIsFormVisible(false)}>

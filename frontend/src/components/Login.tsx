@@ -17,8 +17,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
+import { jwtDecode } from "jwt-decode";
+import { setUserId, setUsername } from "./features/core/coreSlice";
+import { useDispatch } from "react-redux";
 
 export const Login: React.FC = () => {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -44,6 +48,8 @@ export const Login: React.FC = () => {
     setPassword(e.target.value);
   };
 
+  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -51,7 +57,7 @@ export const Login: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "https://motto-ai-be.vercel.app/api/login/",
+        "http://127.0.0.1:8000/api/auth/login/",
         {
           email,
           password,
@@ -61,6 +67,14 @@ export const Login: React.FC = () => {
       // Handle successful login
       console.log("Login successful:", response.data);
       // Sign in the user and store token
+      const decodedToken = jwtDecode<{
+        token_type: string;
+        exp: number;
+        iat: number;
+        jti: string;
+        user_id: number;
+      }>(response.data.access);
+
       signIn({
         auth: {
           token: response.data.access,
@@ -68,9 +82,12 @@ export const Login: React.FC = () => {
         },
         userState: {
           email: email,
-          uid: 123456,
+          uid: decodedToken.user_id,
         },
       });
+
+      dispatch(setUsername(email.split("@")[0]));
+       dispatch(setUserId(decodedToken.user_id));
       navigate("/"); // Redirect to the home page
     } catch (err) {
       setError("Login failed. Please check your credentials and try again.");

@@ -56,21 +56,6 @@ const BottomAppBar: React.FC = () => {
     setProfileAnchorEl(null);
   };
 
-  const handleLogin = () => {
-    signIn({
-      token: "dummy-token",
-      expiresIn: 3600, // Duration in seconds
-      tokenType: "Bearer",
-      authState: { email: "user@example.com" },
-    });
-    handleProfileClose();
-  };
-
-  const handleRegister = () => {
-    // Implement your register functionality here
-    handleProfileClose();
-  };
-
   return (
     <React.Fragment>
       <CssBaseline />
@@ -97,7 +82,11 @@ const BottomAppBar: React.FC = () => {
             open={Boolean(moreAnchorEl)}
             onClose={handleMoreClose}
           >
-            <MenuItem onClick={handleMoreClose} component={Link} to="/notes">
+            <MenuItem
+              onClick={handleMoreClose}
+              component={Link}
+              to="/notes"
+            >
               My Notes
             </MenuItem>
             <MenuItem
@@ -107,10 +96,18 @@ const BottomAppBar: React.FC = () => {
             >
               My Reminders
             </MenuItem>
-            <MenuItem onClick={handleMoreClose} component={Link} to="/tasks">
+            <MenuItem
+              onClick={handleMoreClose}
+              component={Link}
+              to="./tasks"
+            >
               My Tasks
             </MenuItem>
-            <MenuItem onClick={handleMoreClose} component={Link} to="/todos">
+            <MenuItem
+              onClick={handleMoreClose}
+              component={Link}
+              to="./todo"
+            >
               My To-Dos
             </MenuItem>
           </Menu>
@@ -119,8 +116,18 @@ const BottomAppBar: React.FC = () => {
             open={Boolean(profileAnchorEl)}
             onClose={handleProfileClose}
           >
-            <MenuItem onClick={handleLogin}>Login</MenuItem>
-            <MenuItem onClick={handleRegister}>Register</MenuItem>
+            <MenuItem
+              component={Link}
+              to="/login"
+            >
+              Login
+            </MenuItem>
+            <MenuItem
+              component={Link}
+              to="./register"
+            >
+              Logout
+            </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>

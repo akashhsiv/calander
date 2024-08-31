@@ -1,12 +1,9 @@
 import * as React from "react";
-import dayjs, { Dayjs } from "dayjs";
 import {
   Card,
   CardContent,
   Typography,
   IconButton,
-  TextField,
-  Box,
   List,
   ListItem,
   ListItemText,
@@ -17,23 +14,20 @@ import {
   Button,
   Autocomplete,
   TextField as MuiTextField,
+  TextField,
+  Box,
+  CircularProgress,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close"; // Import CloseIcon
+import CloseIcon from "@mui/icons-material/Close";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "./app/store";
+import { addReminders, deleteReminders, updateReminders } from "./features/reminders/remindersActions";
+import { RemindersItem } from './features/reminders/remindersTypes';
+import  dayjs from 'dayjs';
 
-export interface RemindersItem {
-  title: string;
-  date: Dayjs;
-  category: string;
-}
-
-interface ReminderProps {
-  selecteddate: Dayjs | null;
-  reminders: RemindersItem[];
-  setReminders: React.Dispatch<React.SetStateAction<RemindersItem[]>>;
-}
 
 const categories = [
   { title: "Birthday", symbol: "🎉", firstLetter: "B" },
@@ -43,51 +37,62 @@ const categories = [
   { title: "Event", symbol: "🎟️", firstLetter: "E" },
 ];
 
-const Reminders: React.FC<ReminderProps> = ({
-  selecteddate,
-  reminders,
-  setReminders,
-}) => {
+
+
+const Reminders: React.FC= () => {
+   const selectedDate = useSelector(
+     (state: RootState) => state.core.selectedDate
+   );
+  
+  const dispatch = useDispatch<AppDispatch>();
+  const reminders = useSelector((state: RootState) => state.reminders.reminders);
+  const auth = useSelector((state: RootState) => state.core.auth);
   const [newReminder, setNewReminder] = React.useState<string>("");
   const [selectedCategory, setSelectedCategory] = React.useState<string>("");
-  const [showCategory, setShowCategory] = React.useState<boolean>(false);
   const [editIndex, setEditIndex] = React.useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string>("");
 
-  const handleAddReminder = () => {
-    // Use current date if no date is selected
-    const reminderDate = selecteddate || dayjs();
+   const handleAddReminder = async () => {
+     const reminderDate = selectedDate || dayjs();
 
-    if (newReminder && selectedCategory) {
-      if (editIndex !== null) {
-        // Editing an existing reminder
-        const updatedReminders = reminders.map((reminder, index) =>
-          index === editIndex
-            ? { ...reminder, title: newReminder, category: selectedCategory }
-            : reminder
-        );
-        setReminders(updatedReminders);
-        setEditIndex(null); // Clear edit mode
-      } else {
-        // Adding a new reminder
-        setReminders([
-          ...reminders,
-          {
-            title: newReminder,
-            date: reminderDate,
-            category: selectedCategory,
-          },
-        ]);
-      }
-      setNewReminder("");
-      setSelectedCategory("");
-      setShowCategory(false); // Hide the category dropdown after adding
-      handleDialogClose(); // Close dialog
-    } else if (newReminder) {
-      // Show category dropdown if no category is selected
-      setShowCategory(true);
-    }
-  };
+     if (newReminder && selectedCategory) {
+       setLoading(true);
+       try {
+         if (editIndex !== null) {
+           // Editing an existing reminder
+           const updatedReminder = {
+             ...reminders[editIndex],
+             content: newReminder,
+             category: selectedCategory,
+             date: reminderDate.format("YYYY-MM-DD"),
+           };
+           await dispatch(updateReminders(updatedReminder)).unwrap();
+           setEditIndex(null); // Clear edit mode 
+         } else {
+           // Adding a new reminder
+           const newReminderData = {
+             content: newReminder,
+             date: reminderDate.format("YYYY-MM-DD"),
+             category: selectedCategory,
+             user: auth.userId,
+           };
+           await dispatch(addReminders(newReminderData)).unwrap();
+         }
+         setNewReminder("");
+         setSelectedCategory("");
+         handleDialogClose(); // Close dialog
+       } catch (error) {
+         setError("Failed to add or update reminder.");
+         console.error(error);
+       } finally {
+         setLoading(false);
+       }
+     } else if (newReminder) {
+       setShowCategory(true);
+     }
+   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
@@ -98,64 +103,78 @@ const Reminders: React.FC<ReminderProps> = ({
 
   const handleEditReminder = (index: number) => {
     const reminder = reminders[index];
-    setNewReminder(reminder.title);
+    setNewReminder(reminder.content);
     setSelectedCategory(reminder.category);
     setEditIndex(index);
-    setShowCategory(true); // Show category dropdown when editing
     setDialogOpen(true); // Open dialog when editing
   };
-
-  const handleDeleteReminder = (index: number) => {
-    setReminders(reminders.filter((_, i) => i !== index));
-  };
+const handleDeleteReminder = async (index: number) => {
+  setLoading(true);
+  try {
+    const reminderId = reminders[index].id;
+    await dispatch(deleteReminders(reminderId)).unwrap();
+  } catch (error) {
+    setError("Failed to delete reminder.");
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDialogClose = () => {
     setDialogOpen(false);
+    setNewReminder(""); // Clear the input field
+    setSelectedCategory(""); // Clear the selected category
+    setError(""); // Clear the error message
   };
 
   const filteredReminders = reminders.filter(
-    (reminder) => selecteddate && reminder.date.isSame(selecteddate, "day")
+    (reminder:RemindersItem) => selectedDate && dayjs(reminder.date).isSame(selectedDate, "day")
   );
 
   return (
     <Card sx={{ width: "100%", bgcolor: "background.paper", p: 2 }}>
       <CardContent>
-        <Typography variant="h5" component="div" color="primary">
-          Reminders 🔔
-        </Typography>
-        {filteredReminders.length === 0 ? (
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5" component="div" color="primary">
+            Reminders 🔔
+          </Typography>
+          <IconButton
+            color="primary"
+            onClick={() => setDialogOpen(true)} // Open dialog when AddIcon is clicked
+          >
+            <AddIcon />
+          </IconButton>
+        </Box>
+        {loading ? (
+          <CircularProgress />
+        ) : filteredReminders.length === 0 ? (
           <Typography variant="body1">
-            Do you want me to remind you of something?
+            There are no reminders for the selected day.
           </Typography>
         ) : (
           <List>
-            {filteredReminders.map((reminder, index) => (
+            {filteredReminders.map((reminder:RemindersItem, index:number) => (
               <ListItem
                 key={index}
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  mb: 1,
-                  py: 1,
                 }}
               >
                 <ListItemText
-                  primary={reminder.title}
-                  secondary={`Created on: ${reminder.date.format(
-                    "YYYY-MM-DD"
-                  )} - ${reminder.category}`}
+                  primary={reminder.content}
+                  secondary={`Created on: ${reminder.date} - ${reminder.category}`}
                 />
                 <IconButton
                   color="primary"
                   onClick={() => handleEditReminder(index)}
-                  sx={{ ml: 2 }}
                 >
                   <EditIcon />
                 </IconButton>
                 <IconButton
                   color="error"
                   onClick={() => handleDeleteReminder(index)}
-                  sx={{ ml: 1 }}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -163,46 +182,18 @@ const Reminders: React.FC<ReminderProps> = ({
             ))}
           </List>
         )}
-        <ListItem>
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-            <TextField
-              label="Add Here"
-              value={newReminder}
-              onChange={(e) => setNewReminder(e.target.value)}
-              onClick={() => setDialogOpen(true)} // Open dialog when TextField is clicked
-              onKeyDown={handleKeyPress}
-              sx={{ flexGrow: 1 }}
-            />
-            {showCategory && (
-              <Autocomplete
-                id="category-autocomplete"
-                options={categories}
-                getOptionLabel={(option) => option.title}
-                onChange={(_, value) =>
-                  setSelectedCategory(value ? value.title : "")
-                }
-                renderInput={(params) => (
-                  <MuiTextField {...params} label="Category" />
-                )}
-                sx={{ ml: 2, width: 200 }}
-              />
-            )}
-            <IconButton
-              color="primary"
-              onClick={() => setDialogOpen(true)} // Open dialog when AddIcon is clicked
-              sx={{ ml: 2 }}
-            >
-              <AddIcon />
-            </IconButton>
-          </Box>
-        </ListItem>
+        {error && (
+          <Typography variant="body2" color="error">
+            {error}
+          </Typography>
+        )}
       </CardContent>
 
       {/* Dialog for adding or editing a reminder */}
       <Dialog
         open={dialogOpen}
         onClose={handleDialogClose}
-        maxWidth="sm"
+        maxWidth="sm" 
         fullWidth
       >
         <DialogTitle>
@@ -217,6 +208,9 @@ const Reminders: React.FC<ReminderProps> = ({
           </IconButton>
         </DialogTitle>
         <DialogContent>
+          <Typography variant="body1" sx={{ mb: 1}}>
+            Do you want me to remind you of something?
+          </Typography>
           <TextField
             autoFocus
             margin="dense"
@@ -227,20 +221,21 @@ const Reminders: React.FC<ReminderProps> = ({
             onChange={(e) => setNewReminder(e.target.value)}
             onKeyDown={handleKeyPress}
           />
-          {showCategory && (
-            <Autocomplete
-              id="category-autocomplete"
-              options={categories}
-              getOptionLabel={(option) => option.title}
-              onChange={(_, value) =>
-                setSelectedCategory(value ? value.title : "")
-              }
-              renderInput={(params) => (
-                <MuiTextField {...params} label="Category" />
-              )}
-              sx={{ mt: 1 }}
-            />
-          )}
+          <Autocomplete
+            id="category-autocomplete"
+            options={categories}
+            getOptionLabel={(option) => option.title}
+            value={
+              categories.find((cat) => cat.title === selectedCategory) || null
+            }
+            onChange={(_, value) =>
+              setSelectedCategory(value ? value.title : "")
+            }
+            renderInput={(params) => (
+              <MuiTextField {...params} label="Category" />
+            )}
+            sx={{ mt: 2 }} // Added margin to separate from the reminder text field
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Cancel</Button>
@@ -252,3 +247,8 @@ const Reminders: React.FC<ReminderProps> = ({
 };
 
 export default Reminders;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function setShowCategory(_arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
+

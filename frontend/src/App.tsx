@@ -1,19 +1,27 @@
 import * as React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./Home";
-import BottomAppBar from "./components/RespNavBar"; // Ensure this is correctly imported
+import { Login } from "./components/Login";
+import { Register } from "./components/Register";
+import RequireAuth from "@auth-kit/react-router/RequireAuth";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-      <BottomAppBar />{" "}
-      {/* Ensure this is included here or within Home if it should be part of the home page */}
-    </Router>
+      <Router>
+        <Routes>
+          <Route
+            path={"/"}
+            element={
+              <RequireAuth fallbackPath={"/login"}>
+                <Home />
+              </RequireAuth>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </Router>
   );
 };
 
 export default App;
- 

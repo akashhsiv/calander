@@ -7,4 +7,4 @@ class Todo(models.Model):
                              on_delete=models.CASCADE)
     date = models.DateField()
     content = models.TextField()
-    is_done = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
