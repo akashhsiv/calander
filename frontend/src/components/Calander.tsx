@@ -50,22 +50,23 @@ const CalendarWithEvents: React.FC<CalendarWithEventsProps> = ({
         value={selecteddate}
         onChange={(newValue) => setselecteddate(newValue)}
         sx={{
-          height: "100%",
-          maxHeight: "100%",
+          height: "65%",
+          maxHeight: "65%",
           width: "800px",
-          border: "1px solid",
+         bgcolor: "background.paper",
+         boxShadow: "2",
           "& .MuiDayCalendar-slideTransition": {
-            minHeight: "360px",
+            minHeight: "300px",
           },
           "& .MuiDayCalendar-weekDayLabel": {
             fontWeight: "bold",
             fontSize: "0.95rem",
           },
           "& .MuiDayCalendar-header": {
-            gap: "70px",
+            gap: "67px",
           },
           "& .MuiDayCalendar-weekContainer": {
-            gap: "70px",
+            gap: "102px",
             pt: "30px",
           },
         }}

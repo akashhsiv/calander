@@ -33,7 +33,7 @@ const Home: React.FC = () => {
 
   return (
     <Grid container spacing={2} sx={{ marginTop: "15px" }}>
-      <Grid item xs={12} md={7} border={1}>
+      <Grid item xs={12} md={7}>
         <CalendarWithEvents
           selecteddate={selectedDate}
           setselecteddate={setSelectedDate}
@@ -42,32 +42,26 @@ const Home: React.FC = () => {
           tasks={tasks}
           notes={notes}
         />
+        <Tasks
+          selectedDate={selectedDate}
+          tasks={tasks}
+          addTask={addTask}
+          deleteTask={deleteTask}
+        />
       </Grid>
-      <Grid item xs={12} md={5} border={1}>
+      <Grid item xs={12} md={5}>
+        <Notes
+          selectedDate={selectedDate}
+          notes={notes}
+          addNote={addNote}
+          deleteNote={deleteNote}
+        />
         <ToDos selecteddate={selectedDate} todos={todos} setTodos={setTodos} />
         <Reminders
           selecteddate={selectedDate}
           reminders={reminders}
           setReminders={setReminders}
         />
-      </Grid>
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <Tasks
-            selectedDate={selectedDate}
-            tasks={tasks}
-            addTask={addTask}
-            deleteTask={deleteTask}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Notes
-            selectedDate={selectedDate}
-            notes={notes}
-            addNote={addNote}
-            deleteNote={deleteNote}
-          />
-        </Grid>
       </Grid>
     </Grid>
   );

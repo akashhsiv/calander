@@ -12,6 +12,11 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -29,11 +34,11 @@ interface ToDoProps {
 }
 
 const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
-  // Default to current date if selecteddate is null
   const currentDate = dayjs();
   const effectiveDate = selecteddate || currentDate;
 
   const [newTodo, setNewTodo] = React.useState<string>("");
+  const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
   const handleAddTodo = () => {
     if (newTodo) {
@@ -49,6 +54,7 @@ const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
   };
 
   const handleCheckboxChange = (id: number) => {
+    // Remove the to-do item when the checkbox is checked
     const updatedTodos = todos.filter((todo) => todo.id !== id);
     setTodos(updatedTodos);
   };
@@ -56,7 +62,21 @@ const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleAddTodo();
+      setDialogOpen(false);
     }
+  };
+
+  const handleDialogOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleDialogSubmit = () => {
+    handleAddTodo();
+    handleDialogClose();
   };
 
   const filteredTodos = todos.filter(
@@ -86,10 +106,7 @@ const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
                 }}
               >
                 <ListItemIcon>
-                  <Checkbox
-                    checked={todo.completed}
-                    onChange={() => handleCheckboxChange(todo.id)}
-                  />
+                  <Checkbox onChange={() => handleCheckboxChange(todo.id)} />
                 </ListItemIcon>
                 <ListItemText
                   primary={todo.title}
@@ -105,15 +122,45 @@ const ToDos: React.FC<ToDoProps> = ({ selecteddate, todos, setTodos }) => {
               label="Add Here"
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
-              onKeyDown={handleKeyDown}
+              onClick={handleDialogOpen}
               sx={{ flexGrow: 1 }}
             />
-            <IconButton color="primary" onClick={handleAddTodo} sx={{ ml: 2 }}>
+            <IconButton
+              color="primary"
+              onClick={handleDialogOpen}
+              sx={{ ml: 2 }}
+            >
               <AddIcon />
             </IconButton>
           </Box>
         </ListItem>
       </CardContent>
+
+      {/* Dialog for adding a new to-do */}
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Add a New To-Do</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Add Here"
+            fullWidth
+            variant="standard"
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleDialogSubmit}>Add</Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };

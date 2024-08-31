@@ -14,6 +14,14 @@ import {
   ListItemIcon,
   FormControlLabel,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -24,6 +32,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 export interface TaskItem {
   title: string;
   description: string;
+  category: string;
   startDate: Dayjs | null;
   finishDate: Dayjs | null;
   isFinished: boolean;
@@ -45,6 +54,7 @@ const Tasks: React.FC<TaskFormProps> = ({
 }) => {
   const [title, setTitle] = React.useState<string>("");
   const [description, setDescription] = React.useState<string>("");
+  const [category, setCategory] = React.useState<string>(""); // New state for category
   const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
   const [finishDate, setFinishDate] = React.useState<Dayjs | null>(null);
   const [isFinished, setIsFinished] = React.useState<boolean>(false);
@@ -56,16 +66,18 @@ const Tasks: React.FC<TaskFormProps> = ({
     const defaultStartDate = startDate || now;
     const defaultFinishDate = finishDate || now.add(7, "day");
 
-    if (title) {
+    if (title && category) {
       addTask({
         title,
         description,
+        category,
         startDate: defaultStartDate,
         finishDate: defaultFinishDate,
         isFinished,
       });
       setTitle("");
       setDescription("");
+      setCategory("");
       setStartDate(null);
       setFinishDate(null);
       setIsFinished(false);
@@ -85,7 +97,11 @@ const Tasks: React.FC<TaskFormProps> = ({
   );
 
   return (
-    <Card sx={{ width: "100%", bgcolor: "background.paper", p: 2 }}>
+    <Card sx={{
+        marginLeft: 5,
+        width: "800px",
+        bgcolor: "background.paper",
+        boxShadow: "2"}}>
       <CardContent>
         <Typography variant="h5" component="div" color="primary">
           Tasks
@@ -124,6 +140,9 @@ const Tasks: React.FC<TaskFormProps> = ({
                         {task.description}
                       </Typography>
                       <Typography variant="body2">
+                        Category: {task.category}
+                      </Typography>
+                      <Typography variant="body2">
                         Status: {task.isFinished ? "Completed" : "Incomplete"}
                       </Typography>
                     </>
@@ -133,79 +152,90 @@ const Tasks: React.FC<TaskFormProps> = ({
             ))}
           </List>
         )}
-        {isFormVisible ? (
-          <Box sx={{ mt: 2 }}>
-            <TextField
-              label="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <TextField
-              label="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              fullWidth
-              margin="normal"
-            />
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Start Date"
-                value={startDate}
-                onChange={(date) => setStartDate(date)}
-                slotProps={{
-                  textField: { margin: "normal", fullWidth: true },
-                }}
-              />
-              <DatePicker
-                label="Finish Date"
-                value={finishDate}
-                onChange={(date) => setFinishDate(date)}
-                slotProps={{
-                  textField: { margin: "normal", fullWidth: true },
-                }}
-              />
-            </LocalizationProvider>
-            <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isFinished}
-                    onChange={(e) => setIsFinished(e.target.checked)}
-                  />
-                }
-                label="Finished"
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                sx={{ ml: 2 }}
-              >
-                Submit
-              </Button>
-            </Box>
-          </Box>
-        ) : (
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-            <TextField
-              label="Add Here"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              sx={{ flexGrow: 1 }}
-            />
-            <IconButton
-              color="primary"
-              onClick={() => setIsFormVisible(true)}
-              sx={{ ml: 2 }}
-            >
-              <AddIcon />
-            </IconButton>
-          </Box>
-        )}
+        <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+          <TextField
+            label="Add Here"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            sx={{ flexGrow: 1 }}
+          />
+          <IconButton
+            color="primary"
+            onClick={() => setIsFormVisible(true)}
+            sx={{ ml: 2 }}
+          >
+            <AddIcon />
+          </IconButton>
+        </Box>
       </CardContent>
+
+      <Dialog open={isFormVisible} onClose={() => setIsFormVisible(false)}>
+        <DialogTitle>Add New Task</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Category</InputLabel>
+            <Select
+              value={category}
+              onChange={(e) => setCategory(e.target.value as string)}
+            >
+              <MenuItem value="Work">Work</MenuItem>
+              <MenuItem value="Personal">Personal</MenuItem>
+              <MenuItem value="Health">Health</MenuItem>
+              <MenuItem value="Finance">Finance</MenuItem>
+            </Select>
+          </FormControl>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Start Date"
+              value={startDate}
+              onChange={(date) => setStartDate(date)}
+              slotProps={{
+                textField: { margin: "normal", fullWidth: true },
+              }}
+            />
+            <DatePicker
+              label="Finish Date"
+              value={finishDate}
+              onChange={(date) => setFinishDate(date)}
+              slotProps={{
+                textField: { margin: "normal", fullWidth: true },
+              }}
+            />
+          </LocalizationProvider>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isFinished}
+                onChange={(e) => setIsFinished(e.target.checked)}
+              />
+            }
+            label="Finished"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsFormVisible(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };

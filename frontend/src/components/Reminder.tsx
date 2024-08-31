@@ -1,5 +1,5 @@
 import * as React from "react";
-import dayjs, { Dayjs } from "dayjs"; // Import dayjs for getting current date
+import dayjs, { Dayjs } from "dayjs";
 import {
   Card,
   CardContent,
@@ -10,12 +10,18 @@ import {
   List,
   ListItem,
   ListItemText,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
   Autocomplete,
   TextField as MuiTextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close"; // Import CloseIcon
 
 export interface RemindersItem {
   title: string;
@@ -46,6 +52,7 @@ const Reminders: React.FC<ReminderProps> = ({
   const [selectedCategory, setSelectedCategory] = React.useState<string>("");
   const [showCategory, setShowCategory] = React.useState<boolean>(false);
   const [editIndex, setEditIndex] = React.useState<number | null>(null);
+  const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
 
   const handleAddReminder = () => {
     // Use current date if no date is selected
@@ -75,6 +82,7 @@ const Reminders: React.FC<ReminderProps> = ({
       setNewReminder("");
       setSelectedCategory("");
       setShowCategory(false); // Hide the category dropdown after adding
+      handleDialogClose(); // Close dialog
     } else if (newReminder) {
       // Show category dropdown if no category is selected
       setShowCategory(true);
@@ -94,10 +102,15 @@ const Reminders: React.FC<ReminderProps> = ({
     setSelectedCategory(reminder.category);
     setEditIndex(index);
     setShowCategory(true); // Show category dropdown when editing
+    setDialogOpen(true); // Open dialog when editing
   };
 
   const handleDeleteReminder = (index: number) => {
     setReminders(reminders.filter((_, i) => i !== index));
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
   };
 
   const filteredReminders = reminders.filter(
@@ -156,6 +169,7 @@ const Reminders: React.FC<ReminderProps> = ({
               label="Add Here"
               value={newReminder}
               onChange={(e) => setNewReminder(e.target.value)}
+              onClick={() => setDialogOpen(true)} // Open dialog when TextField is clicked
               onKeyDown={handleKeyPress}
               sx={{ flexGrow: 1 }}
             />
@@ -164,7 +178,7 @@ const Reminders: React.FC<ReminderProps> = ({
                 id="category-autocomplete"
                 options={categories}
                 getOptionLabel={(option) => option.title}
-                onChange={(event, value) =>
+                onChange={(_, value) =>
                   setSelectedCategory(value ? value.title : "")
                 }
                 renderInput={(params) => (
@@ -175,7 +189,7 @@ const Reminders: React.FC<ReminderProps> = ({
             )}
             <IconButton
               color="primary"
-              onClick={handleAddReminder}
+              onClick={() => setDialogOpen(true)} // Open dialog when AddIcon is clicked
               sx={{ ml: 2 }}
             >
               <AddIcon />
@@ -183,6 +197,56 @@ const Reminders: React.FC<ReminderProps> = ({
           </Box>
         </ListItem>
       </CardContent>
+
+      {/* Dialog for adding or editing a reminder */}
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Add a New Reminder
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleDialogClose}
+            sx={{ position: "absolute", right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Reminder"
+            fullWidth
+            variant="standard"
+            value={newReminder}
+            onChange={(e) => setNewReminder(e.target.value)}
+            onKeyDown={handleKeyPress}
+          />
+          {showCategory && (
+            <Autocomplete
+              id="category-autocomplete"
+              options={categories}
+              getOptionLabel={(option) => option.title}
+              onChange={(_, value) =>
+                setSelectedCategory(value ? value.title : "")
+              }
+              renderInput={(params) => (
+                <MuiTextField {...params} label="Category" />
+              )}
+              sx={{ mt: 1 }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleAddReminder}>Add</Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };
