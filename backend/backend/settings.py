@@ -143,6 +143,10 @@ REST_FRAMEWORK = {
     ),
 }
 
+SIMPLE_JWT = {
+    "TOKEN_OBTAIN_SERIALIZER": "user.serializer.MyTokenObtainPairSerializer",
+}
+
 CORS_ALLOW_ALL_ORIGINS = True  # Allows requests from any origin
 
 CORS_ALLOW_HEADERS = list(default_headers) + [

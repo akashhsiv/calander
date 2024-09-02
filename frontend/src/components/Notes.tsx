@@ -1,7 +1,6 @@
 import * as React from "react";
 import dayjs from "dayjs";
 import {
-  Box,
   List,
   ListItem,
   ListItemText,
@@ -16,6 +15,9 @@ import {
   DialogTitle,
   Button,
   TextField,
+  CircularProgress,
+  Alert,
+  Box,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -30,12 +32,12 @@ import {
   deleteNotes,
   updateNotes,
 } from "./features/notes/notesActions";
-
+import { ptStyle, stStyle } from "./Constants";
 
 const Notes: React.FC = () => {
-   const selectedDate = useSelector(
-     (state: RootState) => state.core.selectedDate
-   );
+  const selectedDate = useSelector(
+    (state: RootState) => state.core.selectedDate
+  );
   const dispatch = useDispatch<AppDispatch>();
 
   const notes1 = useSelector((state: RootState) => state.notes.notes);
@@ -44,14 +46,12 @@ const Notes: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = React.useState<boolean>(false);
   const [dialogTitle, setDialogTitle] = React.useState<string>("");
   const [dialogContent, setDialogContent] = React.useState<string>("");
-  const [, setLoading] = React.useState<boolean>(false);
-  const [, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  // Use current date as default if no date is selected
   const currentDate = dayjs();
   const dateToUse = selectedDate ? selectedDate : currentDate;
 
-  // Filter notes based on the dateToUse
   const filteredNotes = notes1.filter((note: NoteItem) =>
     dayjs(note.date).isSame(dateToUse, "day")
   );
@@ -66,6 +66,7 @@ const Notes: React.FC = () => {
     setIsDialogOpen(false);
     setEditIndex(null);
     setDialogContent("");
+    setError(null); // Reset error when closing the dialog
   };
 
   const handleAddNote = async () => {
@@ -77,7 +78,7 @@ const Notes: React.FC = () => {
           date: dateToUse.format("YYYY-MM-DD"),
           user: auth.userId,
         };
-        await dispatch(addNotes(notes2)).unwrap(); // Dispatch the addNote action
+        await dispatch(addNotes(notes2)).unwrap();
         setDialogContent("");
         closeDialog();
       } catch (error) {
@@ -92,7 +93,7 @@ const Notes: React.FC = () => {
   const handleEditNote = (id: number) => {
     const noteToEdit = notes1.find((note: NoteItem) => note.id === id);
     if (noteToEdit) {
-      setEditIndex(id); // Store ID instead of index
+      setEditIndex(id);
       setDialogContent(noteToEdit.content);
       openDialog("Edit Note", noteToEdit.content);
     } else {
@@ -123,10 +124,10 @@ const Notes: React.FC = () => {
     }
   };
 
-  const handleDeleteNote = async (index: number) => {
+  const handleDeleteNote = async (id: number) => {
     setLoading(true);
     try {
-      await dispatch(deleteNotes(index)).unwrap();
+      await dispatch(deleteNotes(id)).unwrap();
     } catch (error) {
       setError("Failed to delete note.");
       console.error(error);
@@ -134,68 +135,80 @@ const Notes: React.FC = () => {
       setLoading(false);
     }
   };
+
   return (
-    <>
-      <Card sx={{ width: "100%", bgcolor: "background.paper", p: 2 }}>
-        <CardContent>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            mb={1}
-          >
-            <Typography variant="h5" component="div" color="primary">
-              Notes 📝
-            </Typography>
-            <IconButton
-              onClick={() => openDialog("Add New Note", "")}
-              color="primary"
-            >
-              <AddIcon />
-            </IconButton>
-          </Box>
-          <List>
-            {filteredNotes.length > 0 ? (
-              filteredNotes.map((note: NoteItem, index: number) => (
-                <ListItem
-                  key={index}
-                  secondaryAction={
-                    <>
-                      <IconButton
-                        edge="end"
-                        onClick={() => handleEditNote(note.id)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        onClick={() => handleDeleteNote(note.id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </>
-                  }
-                >
-                  <ListItemText
-                    primary={` ${note.content}`}
-                    secondary={dateToUse.format("YYYY-MM-DD")}
-                  />
-                </ListItem>
-              ))
-            ) : (
-              <Typography variant="body1">
-                No notes available for the selected date.
-              </Typography>
-            )}
-          </List>
-        </CardContent>
-      </Card>
-      <Dialog
-        open={isDialogOpen}
-        onClose={closeDialog}
-        maxWidth="sm" // Adjusted maxWidth
-        fullWidth
+    <Card
+      sx={{
+        width: "100%",
+        bgcolor: "background.paper",
+        boxShadow: `0px 4px 15px rgba(0, 0, 0, 0.3)`,
+        borderRadius: "8px",
+        mb: 10,
+      }}
+    >
+      <CardContent
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
       >
+        <Typography sx={ptStyle} variant="h5" component="div" color="primary">
+          Notes
+        </Typography>
+
+        {loading && <CircularProgress size={24} />}
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        {filteredNotes.length === 0 ? (
+          <Typography sx={stStyle} variant="body1">
+            No notes available for the selected date.
+          </Typography>
+        ) : (
+          <List>
+            {filteredNotes.map((note: NoteItem) => (
+              <ListItem key={note.id}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <ListItemText primary={` ${note.content}`} />
+
+                  <Box>
+                    <IconButton onClick={() => handleEditNote(note.id)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      onClick={() => handleDeleteNote(note.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
+              </ListItem>
+            ))}
+          </List>
+        )}
+
+        <IconButton
+          onClick={() => openDialog("Add New Note", "")}
+          color="primary"
+        >
+          <AddIcon />
+        </IconButton>
+      </CardContent>
+
+      <Dialog open={isDialogOpen} onClose={closeDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{dialogTitle}</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -227,7 +240,7 @@ const Notes: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </Card>
   );
 };
 

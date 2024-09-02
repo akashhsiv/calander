@@ -9,6 +9,6 @@ export interface RemindersItem {
 export interface AddRemindersItem {
   user: number | null;
   content: string;
-  date: string;
+  date: string ;
   category: string;
 }

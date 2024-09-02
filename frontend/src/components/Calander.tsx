@@ -3,12 +3,14 @@ import * as React from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
-import { DayCalendarSkeleton } from "@mui/x-date-pickers/DayCalendarSkeleton";
 import { Dayjs } from "dayjs";
 import ServerDay from './ServerDay';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./app/store";
 import { setSelectedDate } from "./features/core/coreSlice";
+import { calendarStyle } from "./Constants";
+import { CircularProgress } from "@mui/material";
+// import dayjs  from 'dayjs';
 
 
 
@@ -40,52 +42,12 @@ const CalendarWithEvents: React.FC = () => {
       <DateCalendar
         value={selectedDate}
         onChange={(newValue) =>   dispatch(setSelectedDate(newValue))}
-        sx={{
-          height: "95%",
-          maxHeight: "95%",
-          width: "950px",
-          bgcolor: "background.paper",
-          boxShadow: "2",
-          "& .MuiDayCalendar-slideTransition": {
-            minHeight: "400px",
-            fontSize: "1rem",
-          },
-          "&.MuiDayCalendar-monthContainer": {
-            fontSize: "3rem",
-            fontWeight: "bold",
-          },
-
-          "& .MuiDayCalendar-weekDayLabel": {
-            fontWeight: "bold",
-            fontSize: "1rem",
-          },
-          "& .MuiDayCalendar-header": {
-            gap: "100px",
-          },
-          "& .MuiDayCalendar-weekContainer": {
-            gap: "100px",
-            pt: "30px",
-            fontSize: "1rem",
-            fontWeight: "bold",
-          },
-          "&. MuiPickersCalendarHeader-labelContainer": {
-            fontSize: "3rem",
-            fontWeight: "bold",
-          },
-        }}
+        sx={calendarStyle}
         views={["year", "month", "day"]}
         loading={isLoading}
         onMonthChange={handleMonthChange}
         renderLoading={() => (
-          <DayCalendarSkeleton
-            sx={{
-              height: "1000px",
-              maxHeight: "1000px",
-              width: "950px",
-              maxWidth: "950px",
-              display: "inherit",
-              flexDirection: "column",
-            }}
+          <CircularProgress 
           />
         )}
         slots={{

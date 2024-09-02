@@ -27,7 +27,7 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const navigate = useNavigate();
   const signIn = useSignIn();
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -48,8 +48,6 @@ export const Login: React.FC = () => {
     setPassword(e.target.value);
   };
 
-  
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -64,15 +62,13 @@ export const Login: React.FC = () => {
         }
       );
 
-      // Handle successful login
-      console.log("Login successful:", response.data);
-      // Sign in the user and store token
       const decodedToken = jwtDecode<{
         token_type: string;
         exp: number;
         iat: number;
         jti: string;
-        user_id: number;
+        id: number;
+        name: string;
       }>(response.data.access);
 
       signIn({
@@ -82,13 +78,13 @@ export const Login: React.FC = () => {
         },
         userState: {
           email: email,
-          uid: decodedToken.user_id,
+          uid: decodedToken.id,
         },
       });
-
-      dispatch(setUsername(email.split("@")[0]));
-       dispatch(setUserId(decodedToken.user_id));
-      navigate("/"); // Redirect to the home page
+      const userName = decodedToken.name || email.split("@")[0];
+      dispatch(setUsername(userName));
+      dispatch(setUserId(decodedToken.id));
+      navigate("/calendar"); // Redirect to the home page
     } catch (err) {
       setError("Login failed. Please check your credentials and try again.");
       console.error("Login error:", err);
@@ -110,8 +106,23 @@ export const Login: React.FC = () => {
           boxShadow: 3,
         }}
       >
+        {/* App Name and Logo */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: 4,
+          }}
+        >
+          <img src="logo.png" alt="App Logo" width="50" />
+          <Typography variant="h4" component="h1" gutterBottom>
+            DaYFloW
+          </Typography>
+        </Box>
+
         <Typography variant="h4" component="h1" gutterBottom>
-          Login
+          LogIn
         </Typography>
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           <Box mb={2}>

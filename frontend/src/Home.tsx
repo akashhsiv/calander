@@ -25,30 +25,39 @@ const Home: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <Grid container spacing={1} sx={{ marginTop: "15px" }}>
-      <Grid item xs={12} md={8}>
-        <Box
-          sx={{
-            position: "fixed",
-            top: "15px",
-            left: "0",
-            width: "100%",
-            height: "100%",
-            paddingRight: "40%",
-            marginLeft: "45px",
-          }}
+    <>
+      <Grid container spacing={1} sx={{ marginTop: "15px" }}>
+        <Grid item xs={12} md={8}>
+          <Box
+            sx={{
+              position: "fixed",
+              width: "100%",
+              height: "100%",
+              paddingRight: "40%",
+              marginLeft: "30px",
+            }}
+          >
+            <CalendarWithEvents />
+          </Box>
+        </Grid>
+        <Grid
+          item
+          display={"flex"}
+          flexDirection={"column"}
+          gap={2.5}
+          xs={12}
+          md={4}
+          paddingRight= {"20px"}
+          
         >
-          <CalendarWithEvents />
-        </Box>
-      </Grid>
-      <Grid item xs={12} md={4}>
-        <ToDos />
-        <Reminders />
-        <Tasks />
-        <Notes />
+          <ToDos />
+          <Reminders />
+          <Tasks />
+          <Notes />
+        </Grid>
       </Grid>
       <BottomAppBar />
-    </Grid>
+    </>
   );
 };
 

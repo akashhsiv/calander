@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export const Register: React.FC = () => {
-  const [username, setUsername] = useState<string>("");
+  const [user_name, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -54,7 +54,7 @@ export const Register: React.FC = () => {
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/users/", {
-        username,
+        user_name,
         email,
         password,
       });
@@ -83,7 +83,20 @@ export const Register: React.FC = () => {
           boxShadow: 3,
         }}
       >
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: 4,
+          }}
+        >
+          <img src="logo.png" alt="App Logo" width="40" />
+          <Typography variant="h4" component="h1" gutterBottom>
+            DaYFloW
+          </Typography>
+        </Box>
+        <Typography variant="h5" component="h1" gutterBottom>
           Register
         </Typography>
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
@@ -93,7 +106,7 @@ export const Register: React.FC = () => {
               label="Username"
               type="text"
               variant="outlined"
-              value={username}
+              value={user_name}
               onChange={handleUsernameChange}
               required
             />
@@ -155,8 +168,7 @@ export const Register: React.FC = () => {
         <Box mt={2}>
           <Typography variant="body2">
             Already have an account?{" "}
-            <Link href="/login"
- underline="hover">
+            <Link href="/login" underline="hover">
               Login
             </Link>
           </Typography>

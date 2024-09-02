@@ -6,7 +6,6 @@ import {
   Typography,
   IconButton,
   TextField,
-  Box,
   Checkbox,
   List,
   ListItem,
@@ -31,6 +30,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./app/store";
 import { TaskItem } from "./features/tasks/tasksTypes";
 import { addTasks, updateTasks } from "./features/tasks/tasksActions";
+import { ptStyle, stStyle } from "./Constants";
 
 const Tasks: React.FC = () => {
   const selectedDate = useSelector(
@@ -101,28 +101,31 @@ const Tasks: React.FC = () => {
   );
 
   const handleFormOpen = () => {
-    setStartDate(selectedDate); 
-    setIsFormVisible(true); 
+    setStartDate(selectedDate);
+    setIsFormVisible(true);
   };
   return (
-    <Card sx={{ width: "100%", bgcolor: "background.paper", p: 2 }}>
-      <CardContent>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h5" component="div" color="primary">
-            Tasks
-          </Typography>
-          <IconButton color="primary" onClick={handleFormOpen}>
-            <AddIcon />
-          </IconButton>
-        </Box>
+    <Card
+      sx={{
+        width: "100%",
+        bgcolor: "background.paper",
+        boxShadow: `0px 4px 15px rgba(0, 0, 0, 0.5)`,
+        borderRadius: "8px",
+      }}
+    >
+      <CardContent
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography sx={ptStyle} variant="h5" component="div" color="primary">
+          Tasks
+        </Typography>
 
         {filteredTasks.length === 0 ? (
-          <Typography variant="body1">
+          <Typography variant="body1" sx={stStyle}>
             No Task is Scheduled, Is There Anything You'd Like to Add?
           </Typography>
         ) : (
@@ -148,17 +151,12 @@ const Tasks: React.FC = () => {
                   secondary={
                     <>
                       <Typography variant="body2">
-                        {dayjs(task.start_date).format("YYYY-MM-DD")} -{" "}
-                        {dayjs(task.end_date).format("YYYY-MM-DD")}
-                      </Typography>
-                      <Typography variant="body2">
                         {task.description}
                       </Typography>
                       <Typography variant="body2">
-                        Category: {task.category}
-                      </Typography>
-                      <Typography variant="body2">
-                        Status: {task.is_finished ? "Completed" : "Incomplete"}
+                        {dayjs(task.start_date).format("YYYY-MM-DD")}
+                        <span style={{ margin: "0 8px" }}>-</span>
+                        {dayjs(task.end_date).format("YYYY-MM-DD")}
                       </Typography>
                     </>
                   }
@@ -167,6 +165,12 @@ const Tasks: React.FC = () => {
             ))}
           </List>
         )}
+        <IconButton
+          color="primary"
+          onClick={handleFormOpen}
+        >
+          <AddIcon />
+        </IconButton>
       </CardContent>
 
       <Dialog open={isFormVisible} onClose={() => setIsFormVisible(false)}>

@@ -6,7 +6,6 @@ import {
   Typography,
   IconButton,
   TextField,
-  Box,
   Checkbox,
   List,
   ListItem,
@@ -23,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {   AppDispatch, RootState } from "./app/store";
 import { addTodo, updateTodo } from "./features/todos/todosActions";
 import { ToDoItem } from "./features/todos/todosTypes";
+import { ptStyle, stStyle } from "./Constants";
 
 
 const ToDos: React.FC = () => {
@@ -43,7 +43,6 @@ const ToDos: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [, setLoading] = React.useState<boolean>(false);
   const [, setError] = React.useState<string | null>(null);
-console.log(auth)
   
   const handleAddTodo = async () => {
     
@@ -114,28 +113,32 @@ console.log(auth)
   );
 
   return (
-    <Card sx={{ width: "100%", bgcolor: "background.paper", p: 1, height:"28%"}}>
-      <CardContent>
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h5" component="div" color="primary">
-            To-Dos ✓
-          </Typography>
-          <IconButton color="primary" onClick={handleDialogOpen}>
-            <AddIcon />
-          </IconButton>
-        </Box>
+    <Card
+      sx={{
+        width: "100%",
+        bgcolor: "background.paper",
+        boxShadow: `0px 4px 15px rgba(0, 0, 0, 0.5)`,
+        borderRadius: "8px",
+        // overflow: "auto"
+      }}
+    >
+      <CardContent
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography sx={ptStyle} variant="h5" component="div" color="primary">
+          ToDos
+        </Typography>
 
         {filteredTodos.length === 0 ? (
-          <Typography variant="body1">
+          <Typography sx={stStyle} variant="body1">
             Your Schedule is Free Today, Do you want Anything To-Do?
           </Typography>
         ) : (
-          <List>
+          <List >
             {filteredTodos.map((todo: ToDoItem) => (
               <ListItem
                 key={todo.id}
@@ -149,13 +152,15 @@ console.log(auth)
                 <ListItemIcon>
                   <Checkbox
                     checked={todo.completed}
-                    onChange={() => handleCheckboxChange(todo.id, todo.completed)}
+                    onChange={() =>
+                      handleCheckboxChange(todo.id, todo.completed)
+                    }
                   />
                 </ListItemIcon>
                 <ListItemText
                   primary={todo.content}
-                  secondary={`Created on: ${todo.date}`}
-                  style={{
+                  sx={{
+                    ...stStyle,
                     textDecoration: todo.completed ? "line-through" : "none",
                   }}
                 />
@@ -163,32 +168,35 @@ console.log(auth)
             ))}
           </List>
         )}
-
-        <Dialog
-          open={dialogOpen}
-          onClose={handleDialogClose}
-          maxWidth="sm"
-          fullWidth
-        >
-          <DialogTitle>Add a New To-Do</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Add Here"
-              fullWidth
-              variant="standard"
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose}>Cancel</Button>
-            <Button onClick={handleDialogSubmit}>Add</Button>
-          </DialogActions>
-        </Dialog>
+        <IconButton color="primary" onClick={handleDialogOpen}>
+          <AddIcon />
+        </IconButton>
       </CardContent>
+
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Add a New To-Do</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Add Here"
+            fullWidth
+            variant="standard"
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleDialogSubmit}>Add</Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };

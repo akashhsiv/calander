@@ -17,8 +17,8 @@ const store1 = createStore({
 
 root.render(
   <AuthProvider store={store1}>
-    <Provider store={store}>
-      <App />
-    </Provider>
+      <Provider store={store}>
+        <App />
+      </Provider>
   </AuthProvider>
 );
