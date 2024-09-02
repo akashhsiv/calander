@@ -39,11 +39,13 @@ export const AllTasks = () => {
                 </Typography>
                 <Typography variant="body2" color="textSecondary" gutterBottom>
                   Start Date:{" "}
-                  {task.start_date}
+                  {task.start_date
+                    ? task.start_date.format("YYYY-MM-DD")
+                    : "N/A"}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" gutterBottom>
                   End Date:{" "}
-                  {task.end_date}
+                  {task.end_date ? task.end_date.format("YYYY-MM-DD") : "N/A"}
                 </Typography>
                 <Chip
                   label={task.is_finished ? "Finished" : "In Progress"}

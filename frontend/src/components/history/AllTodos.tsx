@@ -5,6 +5,7 @@ import { AppDispatch, RootState } from "../app/store";
 import { Card, CardContent, Typography, Grid } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import dayjs from "dayjs";
 
 export const AllTodos = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -57,7 +58,7 @@ export const AllTodos = () => {
                 </Typography>
 
                 <Typography variant="body2" color="textSecondary">
-                  {todo.date}
+                  {todo.date ? dayjs(todo.date).format("YYYY-MM-DD") : "N/A"}
                 </Typography>
               </CardContent>
             </Card>
