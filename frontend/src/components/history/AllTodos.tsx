@@ -5,6 +5,7 @@ import { AppDispatch, RootState } from "../app/store";
 import { Card, CardContent, Typography, Grid } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import BottomAppBar from "../RespNavBar";
 
 export const AllTodos = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -57,13 +58,14 @@ export const AllTodos = () => {
                 </Typography>
 
                 <Typography variant="body2" color="textSecondary">
-                 {todo.date.format("YYYY-MM-DD") || "N/A"}
+                  {todo.date}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
+      <BottomAppBar/>
     </div>
   );
 };

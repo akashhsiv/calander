@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { fetchTasks } from "./../features/tasks/tasksActions";
 import { AppDispatch, RootState } from "../app/store";
 import { Card, CardContent, Typography, Grid, Chip } from "@mui/material";
+import BottomAppBar from "../RespNavBar";
 
 export const AllTasks = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -38,14 +39,10 @@ export const AllTasks = () => {
                   {task.description}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" gutterBottom>
-                  Start Date:{" "}
-                  {task.start_date
-                    ? task.start_date.format("YYYY-MM-DD")
-                    : "N/A"}
+                  Start Date: {task.start_date ? task.start_date : "N/A"}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" gutterBottom>
-                  End Date:{" "}
-                  {task.end_date ? task.end_date.format("YYYY-MM-DD") : "N/A"}
+                  End Date: {task.end_date}
                 </Typography>
                 <Chip
                   label={task.is_finished ? "Finished" : "In Progress"}
@@ -56,6 +53,7 @@ export const AllTasks = () => {
           </Grid>
         ))}
       </Grid>
+      <BottomAppBar  />
     </div>
   );
 };

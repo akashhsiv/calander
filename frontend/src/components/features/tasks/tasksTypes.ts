@@ -1,11 +1,10 @@
-import { Dayjs } from "dayjs";
 
 export interface TaskItem {
   id: number;
   title: string;
   description: string;
-  start_date: Dayjs | null;
-  end_date: Dayjs | null;
+  start_date:string | null;
+  end_date: string | null;
   is_finished: boolean;
 }
 

@@ -1,9 +1,8 @@
-import { Dayjs } from "dayjs";
 
 export interface ToDoItem {
   id: number;
   content: string;
-  date: Dayjs;
+  date: string;
   completed: boolean;
 }
 

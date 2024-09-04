@@ -4,6 +4,7 @@ import { fetchReminders } from "./../features/reminders/remindersActions";
 import { AppDispatch, RootState } from "../app/store";
 import { Card, CardContent, Typography, Grid, Stack } from "@mui/material";
 import { categoryIcons } from "../Constants";
+import BottomAppBar from "../RespNavBar";
 
 export const AllReminders = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -37,7 +38,7 @@ export const AllReminders = () => {
                 <Typography variant="h6" gutterBottom>
                   {reminder.content}
                 </Typography>
-                <Stack direction={"row"} gap={2} >
+                <Stack direction={"row"} gap={2}>
                   {categoryIcons[reminder.category]}
 
                   <Typography variant="body1" gutterBottom>
@@ -53,6 +54,7 @@ export const AllReminders = () => {
           </Grid>
         ))}
       </Grid>
+      <BottomAppBar />
     </div>
   );
 };
