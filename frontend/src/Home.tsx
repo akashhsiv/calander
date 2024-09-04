@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Grid, Box } from "@mui/material";
-import ToDos from "./components/ToDo";
 import "./components/index.css";
 import CalendarWithEvents from "./components/Calander";
 import BottomAppBar from "./components/RespNavBar";
@@ -13,6 +12,7 @@ import Notes from "./components/Notes";
 import { fetchTasks } from "./components/features/tasks/tasksActions";
 import Tasks from "./components/Tasks";
 import { AppDispatch } from "./components/app/store";
+import ToDos from "./components/ToDo";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
