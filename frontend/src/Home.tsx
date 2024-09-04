@@ -12,7 +12,7 @@ import Notes from "./components/Notes";
 import { fetchTasks } from "./components/features/tasks/tasksActions";
 import Tasks from "./components/Tasks";
 import { AppDispatch } from "./components/app/store";
-import ToDos from "./components/ToDo";
+import ToDos from "./components/ToDos";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
