@@ -27,13 +27,14 @@ SECRET_KEY = 'django-insecure-l(w$x!3+%gx-yn%k^b^d-cn(*9&e+1s(t^t4$$4$jux^zvgfn4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',  # Ensure this is added
+    'corsheaders', 
+    'django_database_prefix',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,6 +65,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
+DB_PREFIX = 'dayflow_'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -88,12 +91,27 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'verceldb',
+        'USER': 'default',
+        'PASSWORD': 'QctBWlEwh1m2',
+        'HOST': 'ep-little-feather-a43jqja1-pooler.us-east-1.aws.neon.tech',
+        'PORT': '5432',
+        'CONN_MAX_AGE': 600,  # Optional: connection pool settings
+        'OPTIONS': {
+            'sslmode': 'require',  # Use SSL mode to connect securely
+        }
     }
 }
 
+# QctBWlEwh1m1
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 

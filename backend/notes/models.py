@@ -7,3 +7,8 @@ class Note(models.Model):
                              on_delete=models.CASCADE)
     date = models.DateField()
     content = models.TextField()
+    
+    class Meta:
+        db_table = 'notes'
+        
+        # 16/09/2003/akash

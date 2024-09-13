@@ -8,3 +8,6 @@ class Reminder(models.Model):
     date = models.DateField()
     content = models.TextField()
     category = models.CharField(max_length=50)
+    
+    class Meta:
+        db_table = "reminders"

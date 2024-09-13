@@ -8,3 +8,6 @@ class Todo(models.Model):
     date = models.DateField()
     content = models.TextField()
     completed = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "todos"

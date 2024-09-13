@@ -10,3 +10,6 @@ class Task(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     is_finished = models.BooleanField(default=False)
+    
+    class Meta:
+        db_table = 'tasks'

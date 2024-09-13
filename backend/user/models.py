@@ -2,6 +2,19 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 
 
+
+
+class BaseModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        # Custom save method if needed
+        super().save(*args, **kwargs)
+
+    @property
+    def table_prefix(self):
+        return 'my_prefix_'  # Set your prefix here
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -31,3 +44,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+    
+    class Meta:
+        db_table = 'users'
