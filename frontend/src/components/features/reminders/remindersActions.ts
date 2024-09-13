@@ -2,7 +2,7 @@ import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AddRemindersItem, RemindersItem } from "./remindersTypes";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api/reminders/";
+const API_BASE_URL = "https://dayflow-be.vercel.app/api/reminders/";
 
 // Fetch all reminders
 export const fetchReminders = createAsyncThunk("reminders/fetchReminders", async () => {

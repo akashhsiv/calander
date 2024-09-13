@@ -2,7 +2,7 @@ import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AddNoteItem, NoteItem } from "./notesTypes";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api/notes/";
+const API_BASE_URL = "https://dayflow-be.vercel.app/api/notes/";
 
 // Fetch all todos
 export const fetchNotes = createAsyncThunk("Notes/fetchNotes", async () => {

@@ -55,7 +55,7 @@ export const Login: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/auth/login/",
+        "https://dayflow-be.vercel.app/api/auth/login/",
         {
           email,
           password,

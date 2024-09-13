@@ -53,11 +53,14 @@ export const Register: React.FC = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/users/", {
-        user_name,
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "https://dayflow-be.vercel.app/api/users/",
+        {
+          user_name,
+          email,
+          password,
+        }
+      );
 
       // Handle successful registration
       console.log("Registration successful:", response.data);
