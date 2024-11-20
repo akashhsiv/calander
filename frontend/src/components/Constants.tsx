@@ -3,7 +3,9 @@ import BillIcon from "@mui/icons-material/AttachMoney";
 import CakeOutlinedIcon from "@mui/icons-material/CakeOutlined";
 import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
-import CelebrationOutlinedIcon from "@mui/icons-material/CelebrationOutlined";
+import CelebrationOutlinedIcon from 
+
+"@mui/icons-material/CelebrationOutlined";
 
 
 export const stStyle = {
@@ -43,7 +45,7 @@ export const calendarStyle = {
   borderRadius: "12px",
   height: "90%",
   maxHeight: "85%",
-  width: "950px",
+  width: "880px",
   bgcolor: "background.paper",
   // boxShadow: "2",
   "& .MuiDayCalendar-slideTransition": {

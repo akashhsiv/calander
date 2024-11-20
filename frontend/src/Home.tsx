@@ -27,10 +27,11 @@ const Home: React.FC = () => {
   return (
     <>
       <Grid container spacing={1} sx={{ marginTop: "15px" }}>
+        {/* Calendar will appear on all screen sizes */}
         <Grid item xs={12} md={8}>
           <Box
             sx={{
-              position: "fixed",
+              position: "relative", // Use relative position instead of fixed
               width: "100%",
               height: "100%",
               paddingRight: "40%",
@@ -40,15 +41,16 @@ const Home: React.FC = () => {
             <CalendarWithEvents />
           </Box>
         </Grid>
+
+        {/* These four items will appear only on laptop and larger devices */}
         <Grid
           item
-          display={"flex"}
+          display={{ xs: "none", md: "flex" }} // Only show on medium screens (laptop) and above
           flexDirection={"column"}
           gap={2.5}
           xs={12}
           md={4}
-          paddingRight= {"20px"}
-          
+          paddingRight={"20px"}
         >
           <ToDos />
           <Reminders />
@@ -56,6 +58,7 @@ const Home: React.FC = () => {
           <Notes />
         </Grid>
       </Grid>
+
       <BottomAppBar />
     </>
   );
